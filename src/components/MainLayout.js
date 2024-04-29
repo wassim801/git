@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useCallback,useEffect } from "react";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import {
   AiOutlineDashboard,
@@ -18,6 +18,12 @@ import { SiBrandfolder } from "react-icons/si";
 import { BiCategoryAlt } from "react-icons/bi";
 import { Layout, Menu, theme } from "antd";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {logout}  from "../features/auth/authSlice";
+import authService from "../features/auth/authServices";
+import Authorised from "../utils/auth";
+
+
 const { Header, Sider, Content } = Layout;
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -25,13 +31,26 @@ const MainLayout = () => {
     token: { colorBgContainer },
   } = theme.useToken();
   const navigate = useNavigate();
+  const dispatch=useDispatch();
+  const authState = useSelector((state)=>state.auth)
+  const {user:currentUser} = authState
+
+  const logOut = () => {
+   localStorage.removeItem("user")
+   authState.user=""
+  }
+
+
+    
+
+  
   return (
     <Layout /* onContextMenu={(e) => e.preventDefault()} */>
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="logo">
           <h2 className="text-white fs-5 text-center py-3 mb-0">
             <span className="sm-logo">DC</span>
-            <span className="lg-logo">Dev Corner</span>
+            <span className="lg-logo">WLA</span>
           </h2>
         </div>
         <Menu
@@ -197,8 +216,8 @@ const MainLayout = () => {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <h5 className="mb-0">Navdeep</h5>
-                <p className="mb-0">navdeepdahiya753@gmail.com</p>
+                <h5 className="mb-0">{currentUser.firstname}</h5>
+                <p className="mb-0">{currentUser.email}</p>
               </div>
               <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
                 <li>
@@ -214,7 +233,10 @@ const MainLayout = () => {
                   <Link
                     className="dropdown-item py-1 mb-1"
                     style={{ height: "auto", lineHeight: "20px" }}
+                    onClick={logOut}
                     to="/"
+                   
+                    
                   >
                     Signout
                   </Link>

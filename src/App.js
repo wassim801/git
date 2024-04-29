@@ -24,14 +24,22 @@ import Couponlist from "./pages/Couponlist";
 import AddCoupon from "./pages/AddCoupon";
 import ViewEnq from "./pages/ViewEnq";
 import ViewOrder from "./pages/ViewOrder";
+import { useSelector } from "react-redux";
+import Authorised from "./utils/auth";
+import EditProduct from "./pages/editProduct";
+import Signup from "./pages/SignUp";
 function App() {
+  const currentUser = useSelector((state)=>state.auth.user);
+  console.log(";;;;"+currentUser)
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/reset-password" element={<Resetpassword />} />
         <Route path="/forgot-password" element={<Forgotpassword />} />
-        <Route path="/admin" element={<MainLayout />}>
+        <Route path="/signup" element={<Signup/>}/>
+
+        <Route path="/admin" element={<Authorised user={currentUser}> <MainLayout /></Authorised>}>
           <Route index element={<Dashboard />} />
           <Route path="enquiries" element={<Enquiries />} />
           <Route path="enquiries/:id" element={<ViewEnq />} />
@@ -58,7 +66,9 @@ function App() {
           <Route path="brand/:id" element={<Addbrand />} />
           <Route path="list-product" element={<Productlist />} />
           <Route path="product" element={<Addproduct />} />
+          <Route path="edit_product/:id" element={<EditProduct />} />
         </Route>
+        <Route path= "/*" element={<Login/>}/>
       </Routes>
     </Router>
   );

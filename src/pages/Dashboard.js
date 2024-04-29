@@ -1,7 +1,9 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { BsArrowDownRight, BsArrowUpRight } from "react-icons/bs";
 import { Column } from "@ant-design/plots";
 import { Table } from "antd";
+import Authorised from "../utils/auth";
+import { useNavigate } from "react-router-dom";
 const columns = [
   {
     title: "SNo",
@@ -30,6 +32,7 @@ for (let i = 0; i < 46; i++) {
   });
 }
 const Dashboard = () => {
+
   const data = [
     {
       type: "Jan",

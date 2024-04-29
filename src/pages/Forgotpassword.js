@@ -21,7 +21,7 @@ const Forgotpassword = () => {
             className="border-0 px-3 py-2 text-white fw-bold w-100"
             style={{ background: "#ffd333" }}
             type="submit"
-          >
+          > 
             Send Link
           </button>
         </form>

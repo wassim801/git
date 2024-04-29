@@ -5,6 +5,7 @@ import { BiEdit } from "react-icons/bi";
 import { AiFillDelete } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import { getOrderByUser, getOrders } from "../features/auth/authSlice";
+import { useParams } from "react-router-dom";
 const columns = [
   {
     title: "SNo",
@@ -43,23 +44,25 @@ const columns = [
 
 const ViewOrder = () => {
   const location = useLocation();
-  const userId = location.pathname.split("/")[3];
+  const currentUser = useSelector((state)=> state.auth.user)
   const dispatch = useDispatch();
+  const param = useParams()
   useEffect(() => {
-    dispatch(getOrderByUser(userId));
+    dispatch(getOrderByUser(param.id));
   }, []);
-  const orderState = useSelector((state) => state.auth.orderbyuser[0].products);
-  console.log(orderState);
+  const orderState = useSelector((state) => state.auth.orderbyuser[0]);
+  console.log(orderState)
+
   const data1 = [];
-  for (let i = 0; i < orderState.length; i++) {
+  for (let i = 0; i < orderState?.products?.length; i++) {
     data1.push({
       key: i + 1,
-      name: orderState[i].product.title,
-      brand: orderState[i].product.brand,
-      count: orderState[i].count,
-      amount: orderState[i].product.price,
-      color: orderState[i].product.color,
-      date: orderState[i].product.createdAt,
+      name: orderState?.products[i]?.product?.title,
+      brand: orderState?.products[i]?.product?.brand,
+      count: orderState?.products[i]?.product?.count,
+      amount: orderState?.products[i]?.product?.price,
+      color: orderState?.products[i]?.product?.color,
+      date: orderState?.products[i]?.product?.createdAt,
       action: (
         <>
           <Link to="/" className=" fs-3 text-danger">
@@ -71,6 +74,7 @@ const ViewOrder = () => {
         </>
       ),
     });
+    console.log(data1)
   }
   return (
     <div>

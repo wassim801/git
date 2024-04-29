@@ -18,8 +18,8 @@ const Login = () => {
   const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      email: "wassimna0@gmail.com",
+      password: "12324",
     },
     validationSchema: schema,
     onSubmit: (values) => {
@@ -29,9 +29,13 @@ const Login = () => {
   const authState = useSelector((state) => state);
 
   const { user, isError, isSuccess, isLoading, message } = authState.auth;
-
+useDispatch(()=>{
+  if(user){
+    navigate("admin");
+  }
+},[])
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && user) {
       navigate("admin");
     } else {
       navigate("");

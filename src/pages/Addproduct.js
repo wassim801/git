@@ -12,8 +12,12 @@ import { getCategories } from "../features/pcategory/pcategorySlice";
 import { getColors } from "../features/color/colorSlice";
 import { Select } from "antd";
 import Dropzone from "react-dropzone";
-import { delImg, uploadImg } from "../features/upload/uploadSlice";
+import { delImg, resetStateUpload, uploadImg } from "../features/upload/uploadSlice";
 import { createProducts, resetState } from "../features/product/productSlice";
+import 'react-dates/initialize';
+import { DateRangePicker } from "react-dates";
+import "react-dates/lib/css/_datepicker.css";
+
 let schema = yup.object().shape({
   title: yup.string().required("Title is Required"),
   description: yup.string().required("Description is Required"),
@@ -21,6 +25,27 @@ let schema = yup.object().shape({
   brand: yup.string().required("Brand is Required"),
   category: yup.string().required("Category is Required"),
   tags: yup.string().required("Tag is Required"),
+  discount: yup
+    .number()
+    .when("tags", {
+      is: (val) => val === "special",
+      then: yup.number().required("Discount is required"),
+      otherwise: yup.number(),
+    }),
+  startDate: yup
+    .date()
+    .when("tags", {
+      is: (val) => val === "special",
+      then: yup.date().required("Start date is required"),
+      otherwise: yup.date(),
+    }),
+  endDate: yup
+    .date()
+    .when("tags", {
+      is: (val) => val === "special",
+      then: yup.date().required("End date is required"),
+      otherwise: yup.date(),
+    }),
   color: yup
     .array()
     .min(1, "Pick at least one color")
@@ -39,21 +64,38 @@ const Addproduct = () => {
     dispatch(getCategories());
     dispatch(getColors());
   }, []);
-
+  const[message,setMessage]= useState();
   const brandState = useSelector((state) => state.brand.brands);
   const catState = useSelector((state) => state.pCategory.pCategories);
   const colorState = useSelector((state) => state.color.colors);
   const imgState = useSelector((state) => state.upload.images);
   const newProduct = useSelector((state) => state.product);
+ const uploadMessage = useSelector((state) => state.upload.message)
+ const [startDate, setStartDate] = useState(null);
+ const [endDate, setEndDate] = useState(null);
+ const [focusedInput, setFocusedInput] = useState(null);
+ 
+ useEffect(()=>{
+  setMessage(uploadMessage)
+
+ },[uploadMessage])
+
+ 
   const { isSuccess, isError, isLoading, createdProduct } = newProduct;
+  console.log(message)
   useEffect(() => {
     if (isSuccess && createdProduct) {
       toast.success("Product Added Successfullly!");
     }
-    if (isError) {
+     if (isError) {
       toast.error("Something Went Wrong!");
     }
-  }, [isSuccess, isError, isLoading]);
+     if (message){
+      toast.error(message)
+      
+    }
+
+  }, [isSuccess, isError, isLoading,message]);
   const coloropt = [];
   colorState.forEach((i) => {
     coloropt.push({
@@ -73,6 +115,7 @@ const Addproduct = () => {
     formik.values.color = color ? color : " ";
     formik.values.images = img;
   }, [color, img]);
+  
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -84,17 +127,26 @@ const Addproduct = () => {
       color: "",
       quantity: "",
       images: "",
+      startDate:"",
+      endDate:"",
+      discount:0,
+
     },
     validationSchema: schema,
     onSubmit: (values) => {
+      console.log(values)
       dispatch(createProducts(values));
       formik.resetForm();
+      dispatch(resetStateUpload());
+
+
       setColor(null);
       setTimeout(() => {
-        dispatch(resetState());
+        dispatch(resetState())
       }, 3000);
     },
   });
+  
   const handleColors = (e) => {
     setColor(e);
     console.log(color);
@@ -198,13 +250,41 @@ const Addproduct = () => {
           <div className="error">
             {formik.touched.tags && formik.errors.tags}
           </div>
+          {formik.values.tags === "special" && (
+  <div>
+    <CustomInput
+      type="text"
+      label="Enter discount like 10%..."
+      name="discount"
+      onChng={formik.handleChange("discount")}
+      onBlr={formik.handleBlur("discount")}
+      val={formik.values.discount}
+    />
+    <div className="error">
+      {formik.touched.discount && formik.errors.discount}
+    </div>
+    <DateRangePicker
+      startDate={formik.values.startDate}
+      startDateId="startDateId"
+      endDate={formik.values.endDate}
+      endDateId="endDateId"
+      onDatesChange={({ startDate, endDate }) => {
+        formik.setFieldValue("startDate", startDate);
+        formik.setFieldValue("endDate", endDate);
+      }}
+      focusedInput={focusedInput}
+      onFocusChange={(focusedInput) => setFocusedInput(focusedInput)}
+      displayFormat="YYYY/MM/DD"
+    />
+  </div>
+)}
 
           <Select
             mode="multiple"
             allowClear
             className="w-100"
             placeholder="Select colors"
-            defaultValue={color}
+            val={color}
             onChange={(i) => handleColors(i)}
             options={coloropt}
           />
@@ -240,6 +320,7 @@ const Addproduct = () => {
           </div>
           <div className="showimages d-flex flex-wrap gap-3">
             {imgState?.map((i, j) => {
+              
               return (
                 <div className=" position-relative" key={j}>
                   <button
@@ -256,6 +337,7 @@ const Addproduct = () => {
           <button
             className="btn btn-success border-0 rounded-3 my-5"
             type="submit"
+            name="submit"
           >
             Add Product
           </button>
@@ -266,3 +348,4 @@ const Addproduct = () => {
 };
 
 export default Addproduct;
+

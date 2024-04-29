@@ -6,6 +6,7 @@ const getUserfromLocalStorage = localStorage.getItem("user")
   : null;
 const initialState = {
   user: getUserfromLocalStorage,
+  orderbyuser:[],
   orders: [],
   isError: false,
   isLoading: false,
@@ -22,6 +23,7 @@ export const login = createAsyncThunk(
     }
   }
 );
+
 
 export const getOrders = createAsyncThunk(
   "order/get-orders",
@@ -66,6 +68,7 @@ export const authSlice = createSlice({
         state.message = action.error;
         state.isLoading = false;
       })
+      
       .addCase(getOrders.pending, (state) => {
         state.isLoading = true;
       })
